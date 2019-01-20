@@ -11,11 +11,16 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 
 print(BASE_DIR)
+print('==')
+print(PROJECT_ROOT)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -24,9 +29,21 @@ print(BASE_DIR)
 SECRET_KEY = '=5+6c82b5-d3*awgqcy1gfv9kk9#we10=+#e!prehii9s351%('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#ENV = 'PRODUCTION'
 
-ALLOWED_HOSTS = []
+#if os.environ.get('ENV') == 'PRODUCTION':
+# SECURITY WARNING: don't run with debug turned on in production!
+if os.environ.get('ENV') == 'PRODUCTION':
+    DEBUG = False
+    ALLOWED_HOSTS = ['projet8.herokuapp.com']
+else:
+    DEBUG = True
+    ALLOWED_HOSTS = []
+
+
+
+
+
 
 
 # Application definition
@@ -40,6 +57,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'resultats.apps.ResultatsConfig',
+    'compte.apps.CompteConfig',
+    'core.apps.CoreConfig',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'projet8.urls'
@@ -58,7 +78,10 @@ ROOT_URLCONF = 'projet8.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'core/template')]
+        'DIRS': [os.path.join(BASE_DIR, 'core/template'),
+                 os.path.join(BASE_DIR, 'compte/template'),
+                 os.path.join(BASE_DIR, 'resultats/template')
+                 ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -67,6 +90,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -82,7 +106,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql', # on utilise l'adaptateur postgresql
         'NAME': 'projet8_db', # le nom de notre base de donnees creee precedemment
-        'USER': 'postgres', # attention : remplacez par votre nom d'utilisateur
+        'USER': 'adm', # attention : remplacez par votre nom d'utilisateur
         'PASSWORD': 'sophie',
         'HOST': '',
         'PORT': '5432',
@@ -126,7 +150,26 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = '/static/'
 
-#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+if os.environ.get('ENV') == 'PRODUCTION':
+    STATIC_URL = '/static/'
+    STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+    STATICFILES_DIRS = (os.path.join(PROJECT_ROOT, 'static'),)
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    db_from_env = dj_database_url.config(conn_max_age=500)
+    DATABASES['default'].update(db_from_env)
+else:
+    STATIC_URL = '/static/'
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'core/static/')]
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'core/media/')
+    MEDIA_URL = 'core/media/'
+
+LOGOUT_REDIRECT_URL = 'home'
+
+#print(STATICFILES_DIRS)
+#print(STATIC_ROOT)
+#print(MEDIA_URL)
+
+
 
