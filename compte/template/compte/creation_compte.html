@@ -1,0 +1,38 @@
+
+    {% extends 'core/base.html' %}
+
+
+    {% block content %}
+
+              <form class="" action="{% url 'creation' %}" method="post">
+                  {% csrf_token %}
+              <!--{{ form.as_table }}-->
+                  <div class="">
+                      <label for="{{ form.name.id_for_label }}" class="control-label">Login</label>
+                      {{ form.name }}
+                  </div>
+
+                  <div class="">
+                      <label for="{{ form.password.id_for_label }}" class="control-label">Mot de passe</label>
+                      {{ form.password }}
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-xl js-scroll-trigger">Creer mon compte</button>
+
+                  <div class="">
+                      {% if envoi %}votre compte a bine ete cree, vous pouvez mainteneant vous connecter !
+                          <a href="{% url 'acceuil' %}">login</a>
+                      {% endif %}
+                  </div>
+
+
+                  <div class="">
+
+                  </div>
+
+
+              </form>
+
+
+
+    {% endblock %}
